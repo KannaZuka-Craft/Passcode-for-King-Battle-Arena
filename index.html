@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KING: BATTLE ARENA - Admin Passcode Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        h2 {
+            color: #58a6ff;
+            text-align: center;
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #8b949e;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin-bottom: 6px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        input:focus {
+            border-color: #58a6ff;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #238636;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #2ea043;
+        }
+        .result-box {
+            margin-top: 20px;
+            background: #0d1117;
+            border: 1px dashed #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            text-align: center;
+        }
+        .result-label {
+            font-size: 0.75rem;
+            color: #8b949e;
+            text-transform: uppercase;
+        }
+        .passcode {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3fb950;
+            letter-spacing: 4px;
+            margin: 8px 0;
+            font-family: monospace;
+        }
+        .timer {
+            font-size: 0.8rem;
+            color: #d29922;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>KING: BATTLE ARENA</h2>
+    <p class="subtitle">Admin Passcode Generator (5-Min TOTP)</p>
+    
+    <div class="input-group">
+        <label for="uid">Masukkan UID Player / Admin:</label>
+        <input type="number" id="uid" placeholder="Contoh: 353261675" autocomplete="off">
+    </div>
+
+    <button onclick="generatePasscode()">GENERATE PASSCODE</button>
+
+    <div class="result-box" id="resultBox" style="display:none;">
+        <div class="result-label">Passcode Aktif (6-Digit):</div>
+        <div class="passcode" id="passcodeDisplay">------</div>
+        <div class="timer" id="timerDisplay">Masa berlaku habis dalam: -- detik</div>
+    </div>
+</div>
+
+<script>
+    let timerInterval = null;
+
+    function generatePasscode() {
+        const uidInput = document.getElementById('uid').value;
+        if (!uidInput) {
+            alert('Masukkan UID terlebih dahulu!');
+            return;
+        }
+
+        // 1. Ambil 5 angka pertama UID (Sesuai Logika Block Script Craftland)
+        const shortUID = parseInt(String(uidInput).substring(0, 5));
+
+        // 2. Ambil Timestamp Server Unix Epoch (Detik)
+        const tsSekarang = Math.floor(Date.now() / 1000);
+
+        // 3. Hitung Window 5 Menit (300 Detik)
+        const timeBlock = Math.floor(tsSekarang / 300);
+
+        // 4. Hitung Rumus Matematika (SAMA PERSIS dengan Block Script)
+        const partUID = shortUID * 3137;
+        const partBlock = timeBlock * 7919;
+        const rawPasscode = ((partUID + partBlock) % 900000) + 100000;
+
+        // Tampilkan Hasil
+        document.getElementById('passcodeDisplay').innerText = rawPasscode;
+        document.getElementById('resultBox').style.display = 'block';
+
+        // Hitung Sisa Waktu Expired Window 300 Detik Saat Ini
+        const sisaDetik = 300 - (tsSekarang % 300);
+        
+        startTimer(sisaDetik);
+    }
+
+    function startTimer(duration) {
+        clearInterval(timerInterval);
+        let timer = duration;
+        
+        const timerDisplay = document.getElementById('timerDisplay');
+        
+        timerInterval = setInterval(() => {
+            timerDisplay.innerText = `Expired dalam: ${timer} detik`;
+
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                timerDisplay.innerText = "KODE EXPIRED! Silakan Generate Ulang.";
+                document.getElementById('passcodeDisplay').innerText = "EXPIRED";
+            }
+        }, 1000);
+    }
+</script>
+
+</body>
+          </html>
