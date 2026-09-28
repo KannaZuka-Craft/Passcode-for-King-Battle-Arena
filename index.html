@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KING: BATTLE ARENA - Admin Passcode Generator</title>
+    <title>KING: BATTLE ARENA - Seed Passcode Generator</title>
     <style>
         * {
             box-sizing: border-box;
@@ -32,19 +32,19 @@
         h2 {
             color: #58a6ff;
             text-align: center;
-            font-size: 1.4rem;
-            margin-bottom: 8px;
+            font-size: 1.3rem;
+            margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         p.subtitle {
             text-align: center;
             color: #8b949e;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             margin-bottom: 20px;
         }
         .input-group {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
         label {
             display: block;
@@ -77,6 +77,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
+            margin-top: 10px;
         }
         button:hover {
             background: #2ea043;
@@ -95,15 +96,15 @@
             text-transform: uppercase;
         }
         .passcode {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: bold;
             color: #3fb950;
             letter-spacing: 4px;
             margin: 8px 0;
             font-family: monospace;
         }
-        .timer {
-            font-size: 0.8rem;
+        .note {
+            font-size: 0.75rem;
             color: #d29922;
         }
     </style>
@@ -112,73 +113,53 @@
 
 <div class="card">
     <h2>KING: BATTLE ARENA</h2>
-    <p class="subtitle">Admin Passcode Generator (5-Min TOTP)</p>
+    <p class="subtitle">Dynamic Seed Admin Passcode</p>
     
     <div class="input-group">
-        <label for="uid">Masukkan UID Player / Admin:</label>
-        <input type="number" id="uid" placeholder="Contoh: 353261675" autocomplete="off">
+        <label for="uid">1. UID Player / Admin:</label>
+        <input type="number" id="uid" placeholder="Contoh: 1782628457" autocomplete="off">
     </div>
 
-    <button onclick="generatePasscode()">GENERATE PASSCODE</button>
+    <div class="input-group">
+        <label for="seed">2. Seed Room ID (5-Digit di Game):</label>
+        <input type="number" id="seed" placeholder="Contoh: 84920" autocomplete="off">
+    </div>
+
+    <button onclick="generateSeedPasscode()">GENERATE PASSCODE</button>
 
     <div class="result-box" id="resultBox" style="display:none;">
-        <div class="result-label">Passcode Aktif (6-Digit):</div>
+        <div class="result-label">Passcode 6-Digit:</div>
         <div class="passcode" id="passcodeDisplay">------</div>
-        <div class="timer" id="timerDisplay">Masa berlaku habis dalam: -- detik</div>
+        <div class="note">Sekali pakai per Seed! Setelah sukses, Seed Room auto-keganti.</div>
     </div>
 </div>
 
 <script>
-    let timerInterval = null;
-
-    function generatePasscode() {
+    function generateSeedPasscode() {
         const uidInput = document.getElementById('uid').value;
-        if (!uidInput) {
-            alert('Masukkan UID terlebih dahulu!');
+        const seedInput = document.getElementById('seed').value;
+
+        if (!uidInput || !seedInput) {
+            alert('Masukkan UID dan Seed Room terlebih dahulu!');
             return;
         }
 
         // 1. Ambil 5 angka pertama UID (Sesuai Logika Block Script Craftland)
         const shortUID = parseInt(String(uidInput).substring(0, 5));
+        const seedNum = parseInt(seedInput);
 
-        // 2. Ambil Timestamp Server Unix Epoch (Detik)
-        const tsSekarang = Math.floor(Date.now() / 1000);
+        // 2. Formulasi Matematika Berbasis Seed (SAMA PERSIS DENGAN BLOCK CRAFTLAND)
+        const partUID = (shortUID * 3137) % 900000;
+        const partSeed = (seedNum * 7919) % 900000;
 
-        // 3. Hitung Window 5 Menit (300 Detik)
-        const timeBlock = Math.floor(tsSekarang / 300);
-
-        // 4. Hitung Rumus Matematika (SAMA PERSIS dengan Block Script)
-        const partUID = shortUID * 3137;
-        const partBlock = timeBlock * 7919;
-        const rawPasscode = ((partUID + partBlock) % 900000) + 100000;
+        // 3. Passcode Final 6-Digit (Range 100,000 - 999,999)
+        const passcode = ((partUID + partSeed) % 900000) + 100000;
 
         // Tampilkan Hasil
-        document.getElementById('passcodeDisplay').innerText = rawPasscode;
+        document.getElementById('passcodeDisplay').innerText = passcode;
         document.getElementById('resultBox').style.display = 'block';
-
-        // Hitung Sisa Waktu Expired Window 300 Detik Saat Ini
-        const sisaDetik = 300 - (tsSekarang % 300);
-        
-        startTimer(sisaDetik);
-    }
-
-    function startTimer(duration) {
-        clearInterval(timerInterval);
-        let timer = duration;
-        
-        const timerDisplay = document.getElementById('timerDisplay');
-        
-        timerInterval = setInterval(() => {
-            timerDisplay.innerText = `Expired dalam: ${timer} detik`;
-
-            if (--timer < 0) {
-                clearInterval(timerInterval);
-                timerDisplay.innerText = "KODE EXPIRED! Silakan Generate Ulang.";
-                document.getElementById('passcodeDisplay').innerText = "EXPIRED";
-            }
-        }, 1000);
     }
 </script>
 
 </body>
-          </html>
+</html>
